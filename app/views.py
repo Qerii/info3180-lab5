@@ -28,6 +28,11 @@ def about():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if current_user.is_authenticated:
+        # if user is already logged in, just redirec them to our secure page
+        # or some other page like a dashboard
+        return redirect(url_for('secure_page'))
+        
     form = LoginForm()
     if request.method == "POST":
         # change this to actually validate the entire form submission
@@ -41,11 +46,19 @@ def login():
             # passed to the login_user() method.
 
             # get user id, load into session
-            login_user(user)
+            login_user(lab5)
 
             # remember to flash a message to the user
             return redirect(url_for("home")) # they should be redirected to a secure-page route instead
     return render_template("login.html", form=form)
+    
+    
+@app.route('/logout')
+def logout():
+    logout_user()
+    flash("you have been logged out.")
+    return redirect(url_for('home'))
+    
 
 # user_loader callback. This callback is used to reload the user object from
 # the user ID stored in the session
