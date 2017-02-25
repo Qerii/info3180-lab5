@@ -30,26 +30,25 @@ def about():
 def login():
     if current_user.is_authenticated:
         # if user is already logged in, just redirec them to our secure page
-        # or some other page like a dashboard
         return redirect(url_for('secure_page'))
         
     form = LoginForm()
-    if request.method == "POST":
-        # change this to actually validate the entire form submission
-        # and not just one field
+    if request.method == "POST" and form.validate_on_submit():
+       
         if form.username.data:
-            # Get the username and password values from the form.
+            username = form.username.data
+            password = form.password.data
+        
+            user = UserProfile.query.filter_by(username=username, password=password).first()
+            
+            login_user(user)
+            flash('Logged in successfully.', 'success')
+            next = request.args.get('next')
 
-            # using your model, query database for a user based on the username
-            # and password submitted
-            # store the result of that query to a `user` variable so it can be
-            # passed to the login_user() method.
-
-            # get user id, load into session
-            login_user(lab5)
-
-            # remember to flash a message to the user
-            return redirect(url_for("home")) # they should be redirected to a secure-page route instead
+            return redirect(url_for("secure_page"))
+        else:
+            return('Username or password is incorrect.', 'unsuccessful')
+    flash_errors(form)
     return render_template("login.html", form=form)
     
     
