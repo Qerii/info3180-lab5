@@ -35,12 +35,12 @@ def login():
     form = LoginForm()
     if request.method == "POST" and form.validate_on_submit():
        
-        if form.username.data:
-            username = form.username.data
-            password = form.password.data
+        username = form.username.data
+        password = form.password.data
         
-            user = UserProfile.query.filter_by(username=username, password=password).first()
-            
+        user = UserProfile.query.filter_by(username=username, password=password).first()
+        
+        if form.username.data:
             login_user(user)
             flash('Logged in successfully.', 'success')
             next = request.args.get('next')
@@ -48,8 +48,16 @@ def login():
             return redirect(url_for("secure_page"))
         else:
             return('Username or password is incorrect.', 'unsuccessful')
-    flash_errors(form)
+    #flash_errors(form)
     return render_template("login.html", form=form)
+    
+@app.route('/secure-page/')
+@login_required
+def secure_page():
+    if current_user.is_authenticated:
+        return render_template('secure_page.html')
+    else:
+        return render_template('login.html')
     
     
 @app.route('/logout')
